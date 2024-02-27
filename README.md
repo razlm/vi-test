@@ -9,12 +9,15 @@ And I really enjoyed
 3. Create cluster with node group(terraform)
 4. helm install for aws-ebs-csi-driver
 5. Install helm chart mongo
-6. Create my repo: 
+6. get the adress for later use
+7. Create my repo: 
 https://github.com/razlm/vi-test
-7. Create docker file for the services.
-8. Create helm charts for the services.
-9. deploy them
-10. Create CI/CD monitor and all the bonus part
+8. Create docker file for the services.
+9. Create helm charts for the services.
+10. deploy them
+11. create SERCRETs in git for CI/CD
+12. Create CI/CD
+13. Deploy monitor and all the bonus part
 
 ### Some Words from me
 I was stuck in the chart build for the services too long.
