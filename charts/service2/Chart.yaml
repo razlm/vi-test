@@ -1,0 +1,5 @@
+# my-service-1-chart/Chart.yaml
+apiVersion: v2
+name: service2
+description: A Helm chart for my Service 2
+version: 0.1.0

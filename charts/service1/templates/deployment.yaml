@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service1
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: service1
+  template:
+    metadata:
+      labels:
+        app: service1
+    spec:
+      containers:
+        - name: service1
+          image: "851725552187.dkr.ecr.eu-north-1.amazonaws.com/raz:service1"
+          ports:
+            - containerPort: 3000
+          env:
+            - name: MONGODB_URL
+              value: "{{ .Values.mongodb.url }}"

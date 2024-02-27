@@ -1,0 +1,68 @@
+name: CI/CD Pipeline
+
+on:
+  pull_request:
+    paths:
+      - 'packages/service1/**'
+      - 'packages/service2/**'
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_REGION: 'eu-north-1'
+      ECR_REPOSITORY: 'raz'
+      NAMESPACE: 'default'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Determine affected service
+        id: get-service
+        run: echo "::set-output name=service::$(if git --no-pager diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -qE 'packages/service1/'; then echo 'service1'; elif git --no-pager diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -qE 'packages/service2/'; then echo 'service2'; else echo 'none'; fi)"
+
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build and push Docker image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          if [ "${{ steps.get-service.outputs.service }}" != "none" ]; then
+            SERVICE_PATH="packages/${{ steps.get-service.outputs.service }}"
+            CHART_PATH="packages/${{ steps.get-service.outputs.service }}"
+            docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$GITHUB_SHA -f $SERVICE_PATH/Dockerfile $SERVICE_PATH
+            docker push $ECR_REGISTRY/$ECR_REPOSITORY:$GITHUB_SHA
+          else
+            echo "No service changes detected. Skipping Docker build and push."
+          fi
+
+      - name: Helm upgrade
+        env:
+          SERVICE_NAME: ${{ steps.get-service.outputs.service }}
+        run: |
+          if [ "$SERVICE_NAME" != "none" ]; then
+            helm upgrade --install $SERVICE_NAME $CHART_PATH \
+              --namespace $NAMESPACE \
+              --set replicaCount=1 \
+              --set image.repository=$ECR_REGISTRY/$ECR_REPOSITORY \
+              --set image.tag=$GITHUB_SHA \
+              --set mongodb.url="mongodb://mongo-mongodb.default.svc.cluster.local" \
+              --set service.port=3000 \
+              --set ... # add other necessary values
+          else
+            echo "No service changes detected. Skipping Helm upgrade."
+          fi
