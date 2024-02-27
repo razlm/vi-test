@@ -1,6 +1,6 @@
 ## DevOps Engineer Home Assignment
 Hi all,
-First of all thank you very much for the opertunity it was a great home task
+First of all thank you very much for the opportunity it was a great home task
 And I really enjoyed
 
 ### Steps I did
@@ -10,7 +10,7 @@ And I really enjoyed
 4. helm install for aws-ebs-csi-driver
 5. Install helm chart mongo
 6. Create my repo: 
-https://github.com/razlm/vi
+https://github.com/razlm/vi-test
 7. Create docker file for the services.
 8. Create helm charts for the services.
 9. deploy them
