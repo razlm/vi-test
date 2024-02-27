@@ -24,7 +24,7 @@ jobs:
 
       - name: Determine affected service
         id: get-service
-        run: echo "::set-output name=service::$(if git --no-pager diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -qE 'packages/service1/'; then echo 'service1'; elif git --no-pager diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -qE 'packages/service2/'; then echo 'service2'; else echo 'none'; fi)"
+        run: echo "::set-output name=service::$(if git --no-pager diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -qE '^packages/service1/'; then echo 'service1'; elif git --no-pager diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -qE '^packages/service2/'; then echo 'service2'; else echo 'none'; fi)"
 
       - name: Set up AWS CLI
         uses: aws-actions/configure-aws-credentials@v1
